@@ -1,0 +1,40 @@
+name: devcontainer
+
+services:
+
+  devcontainer:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspaces:cached
+    environment:
+      DBT_PROJECT_DIR: dbt
+      DBT_PROFILES_DIR: dbt
+    command: sleep infinity
+
+  postgres-dbt:
+    image: postgres:16-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: dbt
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+
+  pg-admin:
+    image: dpage/pgadmin4:8.11
+    restart: always
+    depends_on:
+      - postgres-dbt
+    ports:
+      - 5050:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: username@pgadmin.no
+      PGADMIN_DEFAULT_PASSWORD: password
+
+volumes:
+  postgres-db-volume:

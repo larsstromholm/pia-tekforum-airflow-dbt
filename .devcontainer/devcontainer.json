@@ -1,0 +1,15 @@
+{
+    "name": "pia-tekforum-airflow-dbt",
+    "workspaceFolder": "/workspaces",
+    "dockerComposeFile": [
+        "docker-compose.yml"
+    ],
+    "service": "devcontainer",
+    "forwardPorts": [5050],
+    "portsAttributes": {
+        "5050": {
+            "label": "PGAdmin",
+            "onAutoForward": "notify"
+        }
+    }
+}

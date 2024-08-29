@@ -1,0 +1,13 @@
+tekforum:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: postgres-dbt
+      user: username
+      password: password
+      port: 5432
+      dbname: dbt
+      schema: public
+      threads: 1
+  
