@@ -1,0 +1,21 @@
+version: 2
+
+exposures:
+
+  - name: customer_analysis_dashboard
+    label: PIA Tekforum Customer Analysis
+    type: dashboard
+    maturity: high
+    url: https://bi.tool/dashboards/1
+    description: >
+      Customer Analysis for PIA Tekforum at 4th of September 2024.
+    
+    depends_on:
+      - ref('customers')
+      - ref('orders')
+
+    owner:
+      name: Malo Jaffré
+      email: malo.jaffre@bouvet.no
+
+

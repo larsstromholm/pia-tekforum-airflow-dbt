@@ -1,0 +1,33 @@
+unit_tests:
+  - name: test_total_amount
+    description: >
+      Check that the amount logic captures the totalt amount and is distributed among the different categories.
+    model: orders
+    given:
+      - input: ref('stg_payments')
+        rows:
+          - {order_id: 1, payment_method: credit_card, amount: 10}
+          - {order_id: 2, payment_method: credit_card, amount: 20}
+          - {order_id: 3, payment_method: coupon, amount: 1}
+          - {order_id: 4, payment_method: coupon, amount: 25}
+          - {order_id: 5, payment_method: bank_transfer, amount: 17}
+          - {order_id: 6, payment_method: credit_card, amount: 6}
+          - {order_id: 7, payment_method: gift_card, amount: 23}
+      - input: ref('stg_orders')
+        rows:
+          - {order_id: 1, customer_id: 1}
+          - {order_id: 2, customer_id: 2}
+          - {order_id: 3, customer_id: 3}
+          - {order_id: 4, customer_id: 4}
+          - {order_id: 5, customer_id: 1}
+          - {order_id: 6, customer_id: 2}
+          - {order_id: 7, customer_id: 4}
+    expect:
+      rows:
+        - {order_id: 1, customer_id: 1, credit_card_amount: 10, coupon_amount: 0, bank_transfer_amount: 0, gift_card_amount: 0, amount: 10}
+        - {order_id: 2, customer_id: 2, credit_card_amount: 20, coupon_amount: 0, bank_transfer_amount: 0, gift_card_amount: 0, amount: 20}
+        - {order_id: 3, customer_id: 3, credit_card_amount: 0, coupon_amount: 1, bank_transfer_amount: 0, gift_card_amount: 0, amount: 1}
+        - {order_id: 4, customer_id: 4, credit_card_amount: 0, coupon_amount: 25, bank_transfer_amount: 0, gift_card_amount: 0, amount: 25}
+        - {order_id: 5, customer_id: 1, credit_card_amount: 0, coupon_amount: 0, bank_transfer_amount: 17, gift_card_amount: 0, amount: 17}
+        - {order_id: 6, customer_id: 2, credit_card_amount: 6, coupon_amount: 0, bank_transfer_amount: 0, gift_card_amount: 0, amount: 6}
+        - {order_id: 7, customer_id: 4, credit_card_amount: 0, coupon_amount: 0, bank_transfer_amount: 0, gift_card_amount: 23, amount: 23}
