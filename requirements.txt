@@ -1,2 +1,7 @@
 dbt-core==1.8.6
 dbt-postgres==1.8.2
+pandas==2.2.2
+sqlalchemy==2.0.32
+psycopg2==2.9.9
+requests==2.32.3
+pydantic-settings==2.4.0
