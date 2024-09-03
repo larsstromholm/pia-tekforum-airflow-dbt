@@ -1,38 +1,76 @@
 name: devcontainer
 
 x-tekforum-common: &tekforum-common
+  env_file:
+    - .env
+    - workspace.env
   environment: &tekforum-common-env
-    DBT_PROJECT_DIR: ${DBT_PROJECT_DIR}
-    DBT_PROFILES_DIR: ${DBT_PROFILES_DIR}
-    POSTGRES_HOST: ${POSTGRES_HOST}
+    WORKSPACE_DIR: ${WORKSPACE_DIR}
+    CACHE_DIR: ${CACHE_DIR}
+    DBT_PROJECT_DIR: ${WORKSPACE_DIR}/${DBT_PROJECT_DIR}
+    DBT_PROFILES_DIR: ${WORKSPACE_DIR}/${DBT_PROFILES_DIR}
+    POSTGRES_HOST: postgres-dbt
     POSTGRES_DB: ${POSTGRES_DB}
     POSTGRES_USER: ${POSTGRES_USER}
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-    PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    AIRFLOW_HOME: ${WORKSPACE_DIR}/${AIRFLOW_DIR}
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres-airflow/airflow
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres-airflow/airflow
+    AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+    AIRFLOW__COSMOS__DBT_DOCS_DIR: ${WORKSPACE_DIR}/${DBT_PROJECT_DIR}/web
+  volumes:
+    - workspaces:${WORKSPACE_VOLUME_TARGET}
+    - cache:${CACHE_DIR}
+
+x-airflow-common: &airflow-common
+  <<: *tekforum-common
+  build:
+    context: ..
+    dockerfile: .devcontainer/airflow.Dockerfile
+    args:
+      PYTHON_VERSION: ${PYTHON_VERSION}
+      AIRFLOW_VERSION: ${AIRFLOW_VERSION}
+      AIRFLOW_UID: ${USER_UID}
+  user: "${USER_UID}:0"
+  depends_on:
+    redis:
+      condition: service_healthy
+    postgres-airflow:
+      condition: service_healthy
 
 services:
-
   devcontainer:
+    <<: *tekforum-common
     build:
       context: ..
-      dockerfile: .devcontainer/Dockerfile
-    volumes:
-      - ..:/workspaces:cached
-    environment:
-      <<: *tekforum-common-env
-
-    command: sleep infinity
+      dockerfile: .devcontainer/devcontainer.Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION}
+        AIRFLOW_VERSION: ${AIRFLOW_VERSION}
+        USERNAME: ${USERNAME}
+        USER_UID: ${USER_UID}
+        USER_GID: ${USER_GID}
 
   postgres-dbt:
     image: postgres:16-alpine
     restart: always
-    ports:
-      - 5432:5432
+    expose:
+      - 5432
     volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
+      - postgres-dbt-volume:/var/lib/postgresql/data
     environment:
-      <<: *tekforum-common-env
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test:
+        - "CMD"
+        - "pg_isready"
+        - "-U"
+        - ${POSTGRES_USER}
+      interval: 10s
+      retries: 5
+      start_period: 5s
 
   pg-admin:
     image: dpage/pgadmin4:8.11
@@ -42,8 +80,119 @@ services:
     ports:
       - 5050:80
     environment:
-      <<: *tekforum-common-env
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
 
+  postgres-airflow:
+    image: postgres:13-alpine
+    restart: always
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-airflow-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+
+  redis:
+    image: redis:latest
+    expose:
+      - 6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 50
+      start_period: 30s
+    restart: always
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8087:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+
+  airflow-worker:
+    <<: *airflow-common
+    command: celery worker
+    healthcheck:
+      # yamllint disable rule:line-length
+      test:
+        - "CMD-SHELL"
+        - 'celery --app airflow.providers.celery.executors.celery_executor.app inspect ping -d "celery@$${HOSTNAME}" || celery --app airflow.executors.celery_executor.app inspect ping -d "celery@$${HOSTNAME}"'
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    environment:
+      <<: *tekforum-common-env
+      # Required to handle warm shutdown of the celery workers properly
+      # See https://airflow.apache.org/docs/docker-stack/entrypoint.html#signal-propagation
+      DUMB_INIT_SETSID: "0"
+    restart: always
+
+  airflow-triggerer:
+    <<: *airflow-common
+    command: triggerer
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    # yamllint disable rule:line-length
+    command:
+      - -c
+      - |
+        mkdir -p $${AIRFLOW_HOME}/logs $${AIRFLOW_HOME}/dags $${AIRFLOW_HOME}/plugins
+        chown -R "${USER_UID}:0" $${AIRFLOW_HOME}/{logs,dags,plugins}
+        exec /entrypoint airflow version
+    # yamllint enable rule:line-length
+    environment:
+      <<: *tekforum-common-env
+      _AIRFLOW_DB_MIGRATE: "true"
+      _AIRFLOW_WWW_USER_CREATE: "true"
+      _AIRFLOW_WWW_USER_USERNAME: ${AIRFLOW_WWW_USER}
+      _AIRFLOW_WWW_USER_PASSWORD: ${AIRFLOW_WWW_PASSWORD}
+    user: "0:0"
 
 volumes:
-  postgres-db-volume:
+  postgres-dbt-volume:
+  postgres-airflow-volume:
+  cache:
+  workspaces:
+    name: ${WORKSPACE_VOLUME_NAME}
+    external: true

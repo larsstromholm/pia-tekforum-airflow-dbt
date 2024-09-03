@@ -4,9 +4,34 @@
         "**/.git": true,
         "**/.svn": true,
         "**/.hg": true,
+        "**/.venv": true,
         "**/CVS": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
         "__pycache__": true
-    }
+    },
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.languageServer": "Pylance",
+    "python.defaultInterpreterPath": "./.venv/bin/python",
+    "ruff.fixAll": true,
+    "ruff.organizeImports": true,
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "always"
+        }
+    },
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "always",
+            "source.fixAll": "always"
+        }
+    },
+    "[yaml]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "terminal.integrated.defaultProfile.linux": "bash"
 }
