@@ -1,6 +1,8 @@
 # Config
 .devcontainer/workspace.env
 .devcontainer/.env
+airflow/airflow-webserver.pid
+airflow/logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

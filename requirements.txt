@@ -1,3 +1,4 @@
+apache-airflow[async,celery,postgres,redis]==2.10.0 
 astronomer-cosmos==1.6.0
 dbt-core==1.8.6
 dbt-postgres==1.8.2

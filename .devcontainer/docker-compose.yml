@@ -31,6 +31,7 @@ x-airflow-common: &airflow-common
       PYTHON_VERSION: ${PYTHON_VERSION}
       AIRFLOW_VERSION: ${AIRFLOW_VERSION}
       AIRFLOW_UID: ${USER_UID}
+      CACHE_DIR: ${CACHE_DIR}
   user: "${USER_UID}:0"
   depends_on:
     redis:

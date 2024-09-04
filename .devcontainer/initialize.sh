@@ -8,7 +8,8 @@ git config --global core.editor 'code --wait'
 
 # Install all Python dependencies
 uv venv --python ${PYTHON_VERSION}
-uv pip install "apache-airflow==${AIRFLOW_VERSION}" -r requirements.txt
+source ${WORKSPACE_DIR}/.venv/bin/activate
+uv pip install -r requirements.txt
 
 echo "
 source ${WORKSPACE_DIR}/.venv/bin/activate
