@@ -1,15 +1,37 @@
 {
     "name": "pia-tekforum-airflow-dbt",
-    "workspaceFolder": "/workspaces",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
     "dockerComposeFile": [
         "docker-compose.yml"
     ],
+    "remoteUser": "pia",
     "service": "devcontainer",
-    "forwardPorts": [5050],
+    "postStartCommand": "./.devcontainer/initialize.sh",
+    "initializeCommand": ".devcontainer/initializeCommand.sh --local-workspace-dir '${localWorkspaceFolder}'",
+    "forwardPorts": [
+        5050,
+        8087
+    ],
     "portsAttributes": {
         "5050": {
             "label": "pgAdmin",
             "onAutoForward": "notify"
+        },
+        "8087": {
+            "label": "Airflow",
+            "onAutoForward": "notify"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "redhat.vscode-yaml",
+                "charliermarsh.ruff",
+                "ms-toolsai.jupyter",
+                "esbenp.prettier-vscode"
+            ]
         }
     }
 }

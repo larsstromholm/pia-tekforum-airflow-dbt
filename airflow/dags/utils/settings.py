@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
 
 
@@ -9,5 +11,8 @@ class Settings(BaseSettings):
     postgres_port: int = 5432
     postgres_user: str
     postgres_password: str
+    dbt_project_dir: Path
+    dbt_profiles_dir: Path
+
 
 settings = Settings()
