@@ -2,9 +2,11 @@ apache-airflow[async,celery,postgres,redis]==2.10.0
 astronomer-cosmos==1.6.0
 dbt-core==1.8.6
 dbt-postgres==1.8.2
-dlt==0.5.4
+dlt[postgres]==0.5.4
+ipykernel==6.29.5
+ipython==8.27.0
 pandas==2.2.2
-sqlalchemy==1.4.53
 psycopg2-binary==2.9.9
-requests==2.32.3
 pydantic-settings==2.4.0
+requests==2.32.3
+sqlalchemy==1.4.53
