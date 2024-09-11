@@ -1,0 +1,38 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "DBT",
+      "Host": "postgres-dbt",
+      "Group": "Dev Container",
+      "Port": 5432,
+      "Username": "username",
+      "SharedUsername": "postgres",
+      "Shared": true,
+      "PasswordExecCommand": "echo 'password'",
+      "PasswordExecExpiration": 3600,
+      "MaintenanceDB": "postgres",
+      "DBRestriction": "dbt",
+      "ConnectionParameters": {
+        "sslmode": "disable",
+        "connect_timeout": 10
+      }
+    },
+    "2": {
+      "Name": "Airflow",
+      "Host": "postgres-airflow",
+      "Group": "Dev Container",
+      "Port": 5432,
+      "Username": "airflow",
+      "SharedUsername": "airflow",
+      "Shared": true,
+      "PasswordExecCommand": "echo 'password'",
+      "PasswordExecExpiration": 3600,
+      "MaintenanceDB": "postgres",
+      "DBRestriction": "airflow",
+      "ConnectionParameters": {
+        "sslmode": "disable",
+        "connect_timeout": 10
+      }
+    }
+  }
+}

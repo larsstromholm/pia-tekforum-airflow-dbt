@@ -9,11 +9,11 @@
     "postStartCommand": "./.devcontainer/initialize.sh",
     "initializeCommand": ".devcontainer/initializeCommand.sh --local-workspace-dir '${localWorkspaceFolder}'",
     "forwardPorts": [
-        5050,
+        5057,
         8087
     ],
     "portsAttributes": {
-        "5050": {
+        "5057": {
             "label": "pgAdmin",
             "onAutoForward": "notify"
         },
