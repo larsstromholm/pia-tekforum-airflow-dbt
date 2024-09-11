@@ -17,7 +17,7 @@ x-tekforum-common: &tekforum-common
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${POSTGRES_PASSWORD}@postgres-airflow/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:${POSTGRES_PASSWORD}@postgres-airflow/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
-    AIRFLOW__COSMOS__DBT_DOCS_DIR: ${WORKSPACE_DIR}/${DBT_PROJECT_DIR}/web
+    AIRFLOW__COSMOS__DBT_DOCS_DIR: ${WORKSPACE_DIR}/${DBT_PROJECT_DIR}/target
   volumes:
     - workspaces:${WORKSPACE_VOLUME_TARGET}
     - cache:${CACHE_DIR}

@@ -14,5 +14,9 @@ class Settings(BaseSettings):
     dbt_project_dir: Path
     dbt_profiles_dir: Path
 
+    @property
+    def postgres_dsn(self) -> str:
+        return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+
 
 settings = Settings()
