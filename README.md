@@ -66,9 +66,10 @@ $ dbt docs serve
 
 ## Buildint a dlt pipeline
 
-```bash
-dlt init rest_api postgres
-```
+1. Building a [source](https://dlthub.com/docs/dlt-ecosystem/verified-sources/rest_api)
+2. Building a [destination](https://dlthub.com/docs/dlt-ecosystem/destinations/postgres)
+3. Testing it in a notebook: see notebook.ipynb
+4. Writing a [DAG](https://dlthub.com/docs/walkthroughs/deploy-a-pipeline/deploy-with-airflow-composer#2-modify-dag-file)
 
 ## Links:
 
