@@ -1,8 +1,8 @@
 {
   "Servers": {
     "1": {
-      "Name": "DBT",
-      "Host": "postgres-dbt",
+      "Name": "Demo",
+      "Host": "postgres-demo",
       "Group": "Dev Container",
       "Port": 5432,
       "Username": "username",
@@ -11,7 +11,7 @@
       "PasswordExecCommand": "echo 'password'",
       "PasswordExecExpiration": 3600,
       "MaintenanceDB": "postgres",
-      "DBRestriction": "dbt",
+      "DBRestriction": "demo",
       "ConnectionParameters": {
         "sslmode": "disable",
         "connect_timeout": 10

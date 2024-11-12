@@ -9,7 +9,7 @@ x-tekforum-common: &tekforum-common
     CACHE_DIR: ${CACHE_DIR}
     DBT_PROJECT_DIR: ${WORKSPACE_DIR}/${DBT_PROJECT_DIR}
     DBT_PROFILES_DIR: ${WORKSPACE_DIR}/${DBT_PROFILES_DIR}
-    POSTGRES_HOST: postgres-dbt
+    POSTGRES_HOST: postgres-demo
     POSTGRES_DB: ${POSTGRES_DB}
     POSTGRES_USER: ${POSTGRES_USER}
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -52,13 +52,13 @@ services:
         USER_UID: ${USER_UID}
         USER_GID: ${USER_GID}
 
-  postgres-dbt:
+  postgres-demo:
     image: postgres:16-alpine
     restart: always
     expose:
       - 5432
     volumes:
-      - postgres-dbt-volume:/var/lib/postgresql/data
+      - postgres-demo-volume:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -77,7 +77,7 @@ services:
     image: dpage/pgadmin4:8.11
     restart: always
     depends_on:
-      - postgres-dbt
+      - postgres-demo
     ports:
       - 5057:80
     environment:
@@ -194,7 +194,7 @@ services:
     user: "0:0"
 
 volumes:
-  postgres-dbt-volume:
+  postgres-demo-volume:
   postgres-airflow-volume:
   cache:
   workspaces:

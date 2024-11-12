@@ -3,7 +3,7 @@ import dlt.common
 import dlt.common.configuration
 import dlt.common.destination
 import dlt.common.destination.reference
-from extract.rest_api import (
+from demo_dlt.extract.rest_api import (
     rest_api_source,
 )
 

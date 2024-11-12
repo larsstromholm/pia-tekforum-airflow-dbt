@@ -1,8 +1,8 @@
 from datetime import datetime
 
+from demo_dlt.extract.destination import postgres_destination
+from demo_dlt.extract.nobel import nobel_pipeline, nobel_source
 from dlt.helpers.airflow_helper import PipelineTasksGroup
-from extract.destination import postgres_destination
-from extract.nobel import nobel_pipeline, nobel_source
 
 from airflow.decorators import dag
 
