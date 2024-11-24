@@ -1,38 +1,35 @@
+import string
 import warnings
 from copy import copy
 from typing import (
-    Type,
     Any,
-    Dict,
-    Tuple,
-    List,
-    Optional,
-    Union,
     Callable,
-    cast,
+    Dict,
+    List,
     NamedTuple,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    cast,
 )
-import graphlib  # type: ignore[import,unused-ignore]
-import string
 
 import dlt
-from dlt.common import logger
+import graphlib  # type: ignore[import,unused-ignore]
+from dlt.common import jsonpath, logger
 from dlt.common.configuration import resolve_configuration
 from dlt.common.schema.utils import merge_columns
 from dlt.common.utils import update_dict_nested
-from dlt.common import jsonpath
-
 from dlt.extract.incremental import Incremental
 from dlt.extract.utils import ensure_table_schema_columns
-
 from dlt.sources.helpers.requests import Response
 from dlt.sources.helpers.rest_client.paginators import (
     BasePaginator,
-    SinglePagePaginator,
     HeaderLinkPaginator,
     JSONResponseCursorPaginator,
     OffsetPaginator,
     PageNumberPaginator,
+    SinglePagePaginator,
 )
 
 try:
@@ -42,30 +39,29 @@ except ImportError:
         JSONResponsePaginator as JSONLinkPaginator,
     )
 
-from dlt.sources.helpers.rest_client.detector import single_entity_path
-from dlt.sources.helpers.rest_client.exceptions import IgnoreResponseException
 from dlt.sources.helpers.rest_client.auth import (
-    AuthConfigBase,
-    HttpBasicAuth,
-    BearerTokenAuth,
     APIKeyAuth,
+    AuthConfigBase,
+    BearerTokenAuth,
+    HttpBasicAuth,
     OAuth2ClientCredentials,
 )
+from dlt.sources.helpers.rest_client.detector import single_entity_path
+from dlt.sources.helpers.rest_client.exceptions import IgnoreResponseException
 
 from .typing import (
-    EndpointResourceBase,
-    AuthType,
     AuthConfig,
+    AuthType,
+    Endpoint,
+    EndpointResource,
+    EndpointResourceBase,
     IncrementalConfig,
     PaginatorConfig,
     ResolvedParam,
     ResponseAction,
     ResponseActionDict,
-    Endpoint,
-    EndpointResource,
 )
 from .utils import exclude_keys
-
 
 PAGINATOR_MAP: Dict[str, Type[BasePaginator]] = {
     "json_link": JSONLinkPaginator,
@@ -245,7 +241,7 @@ def setup_incremental_object(
 
 
 def parse_convert_or_deprecated_transform(
-    config: Union[IncrementalConfig, Dict[str, Any]]
+    config: Union[IncrementalConfig, Dict[str, Any]],
 ) -> Optional[Callable[..., Any]]:
     convert = config.get("convert", None)
     deprecated_transform = config.get("transform", None)

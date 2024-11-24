@@ -1,49 +1,48 @@
 """Generic API Source"""
 
 from copy import deepcopy
-from typing import Type, Any, Dict, List, Optional, Generator, Callable, cast, Union
-import graphlib  # type: ignore[import,unused-ignore]
-from requests.auth import AuthBase
+from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union, cast
 
 import dlt
-from dlt.common.validation import validate_dict
+import graphlib  # type: ignore[import,unused-ignore]
 from dlt.common import jsonpath
+from dlt.common.configuration.specs import BaseConfiguration
 from dlt.common.schema.schema import Schema
 from dlt.common.schema.typing import TSchemaContract
-from dlt.common.configuration.specs import BaseConfiguration
-
+from dlt.common.validation import validate_dict
 from dlt.extract.incremental import Incremental
 from dlt.extract.source import DltResource, DltSource
-
 from dlt.sources.helpers.rest_client import RESTClient
-from dlt.sources.helpers.rest_client.paginators import BasePaginator
 from dlt.sources.helpers.rest_client.auth import (
-    HttpBasicAuth,
-    BearerTokenAuth,
     APIKeyAuth,
     AuthConfigBase,
+    BearerTokenAuth,
+    HttpBasicAuth,
 )
+from dlt.sources.helpers.rest_client.paginators import BasePaginator
 from dlt.sources.helpers.rest_client.typing import HTTPMethodBasic
+from requests.auth import AuthBase
+
+from .config_setup import (
+    IncrementalParam,
+    build_resource_dependency_graph,
+    create_auth,
+    create_paginator,
+    create_response_hooks,
+    process_parent_data_item,
+    setup_incremental_object,
+)
 from .typing import (
     AuthConfig,
     ClientConfig,
-    ResolvedParam,
-    ResolveParamConfig,
     Endpoint,
     EndpointResource,
     IncrementalParamConfig,
-    RESTAPIConfig,
     ParamBindType,
     ProcessingSteps,
-)
-from .config_setup import (
-    IncrementalParam,
-    create_auth,
-    create_paginator,
-    build_resource_dependency_graph,
-    process_parent_data_item,
-    setup_incremental_object,
-    create_response_hooks,
+    ResolvedParam,
+    ResolveParamConfig,
+    RESTAPIConfig,
 )
 from .utils import check_connection, exclude_keys  # noqa: F401
 
@@ -456,7 +455,7 @@ def _set_incremental_params(
 
 
 def _validate_param_type(
-    request_params: Dict[str, Union[ResolveParamConfig, IncrementalParamConfig, Any]]
+    request_params: Dict[str, Union[ResolveParamConfig, IncrementalParamConfig, Any]],
 ) -> None:
     for _, value in request_params.items():
         if isinstance(value, dict) and value.get("type") not in PARAM_TYPES:
@@ -469,6 +468,7 @@ def _validate_param_type(
 # since the source uses dlt.source as a function
 def _register_source(source_func: Callable[..., DltSource]) -> None:
     import inspect
+
     from dlt.common.configuration import get_fun_spec
     from dlt.common.source import _SOURCES, SourceInfo
 

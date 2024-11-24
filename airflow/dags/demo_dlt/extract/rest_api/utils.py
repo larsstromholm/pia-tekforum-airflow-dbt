@@ -1,4 +1,4 @@
-from typing import Tuple, Dict, Any, Mapping, Iterable
+from typing import Any, Dict, Iterable, Mapping, Tuple
 
 from dlt.common import logger
 from dlt.extract.source import DltSource
