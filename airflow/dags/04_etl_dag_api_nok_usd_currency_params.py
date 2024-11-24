@@ -7,33 +7,37 @@ from functions import daily_currency_dataframe
 from utils.settings import settings
 
 from airflow.decorators import dag, task
+from airflow.models.param import Param
 
 
 def send_email_on_failure(recipients): ...
 
 
-def update_bi_dashboard_on_success(dashboard_id): ...
-
-
 @dag(
-    schedule="@daily",
+    schedule=None,
     start_date=datetime(2023, 1, 1),
     catchup=False,
     max_active_runs=1,
     on_failure_callback=send_email_on_failure(["lars.stromholm@gmail.com"]),
-    on_success_callback=update_bi_dashboard_on_success("my_dashboard"),
+    params={
+        "from_date": Param("2024-01-01", type="string", format="date"),
+        "to_date": Param("2024-12-31", type="string", format="date"),
+    },
     tags=["demo"],
 )
-def currency_etl_nok_usd():
+def currency_etl_nok_usd_with_parameters():
     """Extract, transform and load currencies."""
 
     @task
-    def extract_currency_data_from_api():
+    def extract_currency_data_from_api(**context):
         """Extract data."""
+
+        from_date = context["params"]["from_date"]
+        to_date = context["params"]["to_date"]
 
         # Extract Norges Bank valutakurs NOK/USD
         response = requests.get(
-            "https://data.norges-bank.no/api/data/EXR/B.USD.NOK.SP?format=sdmx-json&startPeriod=2024-01-01&endPeriod=2024-11-24&locale=no"
+            f"https://data.norges-bank.no/api/data/EXR/B.USD.NOK.SP?format=sdmx-json&startPeriod={from_date}&endPeriod={to_date}&locale=no"
         )
 
         return response.json()
@@ -54,6 +58,7 @@ def currency_etl_nok_usd():
             with conn.cursor() as cur:
                 query = "INSERT INTO public.currency_nok_usd_daily SELECT * FROM json_populate_recordset(NULL::public.currency_nok_usd_daily, %s)"
 
+                cur.execute("TRUNCATE TABLE public.currency_nok_usd_daily")
                 cur.execute(query, (data.to_json(orient="records"),))
 
     # Create dependencies
@@ -64,4 +69,4 @@ def currency_etl_nok_usd():
     load_to_database(transformed_data)
 
 
-currency_etl_nok_usd()
+currency_etl_nok_usd_with_parameters()

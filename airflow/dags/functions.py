@@ -28,17 +28,17 @@ def daily_currency_dataframe(data: dict[str, Any]):
     # Extract dimensions and observation details
     base_cur = structure["series"][1]["values"][0]["id"]
     quote_cur = structure["series"][2]["values"][0]["id"]
-    timestamp = structure["observation"][0]["values"]
+    time_periods = structure["observation"][0]["values"]
     observations = series_data["0:0:0:0"]["observations"]
 
     # Prepare data for DataFrame
     records = []
     for obs_key, obs_value in observations.items():
-        timestamp = timestamp[int(obs_key)]["id"]
+        time_period = time_periods[int(obs_key)]["id"]
         exchange_rate = obs_value[0]
         records.append(
             {
-                "timestamp": timestamp,
+                "timestamp": time_period,
                 "base_currency": base_cur,
                 "quote_currency": quote_cur,
                 "exchange_rate": float(exchange_rate),
