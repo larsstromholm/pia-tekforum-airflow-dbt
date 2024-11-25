@@ -7,6 +7,9 @@ from utils.settings import settings
 from airflow.datasets import Dataset
 from airflow.decorators import dag, task
 
+# Trigger this DAG when dataset `equnior_prices` and `currency_nok_usd` is updated
+schedule = [Dataset("equinor_prices"), Dataset("currency_nok_usd")]
+
 
 def send_email_on_failure(recipients): ...
 
@@ -15,7 +18,7 @@ def update_dashboard(dashboard_id): ...
 
 
 @dag(
-    schedule=[Dataset("equinor_prices"), Dataset("currency_nok_usd")],
+    schedule=schedule,
     start_date=datetime(2023, 1, 1),
     catchup=False,
     max_active_runs=1,

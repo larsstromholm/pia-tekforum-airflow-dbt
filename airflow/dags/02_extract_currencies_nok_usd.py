@@ -9,6 +9,8 @@ from utils.settings import settings
 from airflow.datasets import Dataset
 from airflow.decorators import dag, task
 
+NORGES_BANK_API = "https://data.norges-bank.no/api/data/EXR/B.USD.NOK.SP?format=sdmx-json&startPeriod=2022-01-01&endPeriod=2024-11-24&locale=no"
+
 
 def send_email_on_failure(recipients): ...
 
@@ -29,9 +31,7 @@ def extract_currency_nok_usd():
         """Extract data."""
 
         # Extract Norges Bank valutakurs NOK/USD
-        response = requests.get(
-            "https://data.norges-bank.no/api/data/EXR/B.USD.NOK.SP?format=sdmx-json&startPeriod=2022-01-01&endPeriod=2024-11-24&locale=no"
-        )
+        response = requests.get(NORGES_BANK_API)
 
         return response.json()
 
