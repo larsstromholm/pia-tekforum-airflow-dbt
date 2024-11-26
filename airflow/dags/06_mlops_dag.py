@@ -76,7 +76,7 @@ def mlops_pipeline():
 
     prepared_data = prepare_features(data)
 
-    mse = train_and_evaluate_model(prepared_data)
+    train_and_evaluate_model(prepared_data)
 
 
 mlops_pipeline()
