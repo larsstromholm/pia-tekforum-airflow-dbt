@@ -3,8 +3,9 @@ from requests.auth import HTTPBasicAuth
 
 
 def trigger_dag(dag_name: str):
-    response = requests.get(
-        f"http://airflow-webserver:8080/api/v1/dags/{dag_name}/details",
+    response = requests.post(
+        f"http://airflow-webserver:8080/api/v1/dags/{dag_name}/dagRuns",
+        data="{}",
         headers={"Content-Type": "application/json"},
         auth=HTTPBasicAuth("username", "password"),
     )
