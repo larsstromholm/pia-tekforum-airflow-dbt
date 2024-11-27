@@ -11,7 +11,7 @@ from airflow.decorators import dag, task
     tags=["demo"],
 )
 def dag_basics():
-    @task
+    @task(retries=5, retry_delay=5)
     def task_a():
         return "task a"
 

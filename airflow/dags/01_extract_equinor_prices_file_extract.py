@@ -28,7 +28,7 @@ def extract_equinor_prices():
     """Extract, transform and load stock prices."""
 
     @task
-    def extract_stock_price_data():
+    def extract_stock_price_data_from_file():
         """Extract data."""
 
         df = pd.read_csv(EQUINOR_DATA)
@@ -55,7 +55,7 @@ def extract_equinor_prices():
                 cur.execute(query, (data.to_json(orient="records"),))
 
     # Create dependencies
-    equinor_stock_prices = extract_stock_price_data()
+    equinor_stock_prices = extract_stock_price_data_from_file()
 
     transformed_data = rename_columns(equinor_stock_prices)
 

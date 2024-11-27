@@ -30,7 +30,7 @@ def transform_equinor_prices():
     """Join equinor prices to denote in USD currency."""
 
     @task
-    def read_equinor_prices():
+    def read_equinor_prices_from_database():
         """Read equinor prices and return pandas df."""
 
         with psycopg2.connect(settings.postgres_dsn) as conn:
@@ -45,7 +45,7 @@ def transform_equinor_prices():
         return df
 
     @task
-    def read_currency_nok_usd_daily():
+    def read_currency_nok_usd_daily_from_database():
         """Read currency usd/nok and return pandas df."""
 
         with psycopg2.connect(settings.postgres_dsn) as conn:
@@ -86,9 +86,9 @@ def transform_equinor_prices():
                 cur.execute(query, (data.to_json(orient="records", date_format="iso"),))
 
     # Create dependencies
-    price_df = read_equinor_prices()
+    price_df = read_equinor_prices_from_database()
 
-    currency_df = read_currency_nok_usd_daily()
+    currency_df = read_currency_nok_usd_daily_from_database()
 
     df = merge_eqnr_price_with_currencies(price_df, currency_df)
 
